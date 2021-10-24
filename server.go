@@ -45,23 +45,20 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 	// a particular naming pattern*/
 
 	fileName := r.Header.Get("fileName")
-
+	fileName = dir + "\\" + fileName
 	fmt.Println(dir)
-	tempFile, err := ioutil.TempFile(dir, fileName)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer tempFile.Close()
+
 	// read all of the contents of our uploaded file into a
 	// byte array
 	fileBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		panic(err.Error())
 	}
-	// write this byte array to our temporary file
-	tempFile.Write(fileBytes)
-	// return that we have successfully uploaded our file!
+	// write this byte array to  file
+
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
+
+	ioutil.WriteFile(fileName, fileBytes, 0644)
 
 }
 
@@ -90,9 +87,31 @@ func removeFile(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 
 	}
-	fmt.Println("File  successfully deleted")
+	fmt.Println("File Successfully deleted")
 
 }
+
+//Update file
+func updateFile(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Update hit")
+	params := mux.Vars(r)
+	fileName := params["fileName"]
+
+	fileName = dir + "\\" + fileName
+	fmt.Println(fileName)
+
+	// read all of the contents of our uploaded file into a
+	// byte array
+	fileBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+	// write this byte array to  file
+
+	ioutil.WriteFile(fileName, fileBytes, 0644)
+	fmt.Fprintf(w, "Successfully Updated File\n")
+}
+
 func main() {
 	fmt.Println("Main Started")
 
@@ -101,7 +120,7 @@ func main() {
 	router.HandleFunc("/add", addFile).Methods("POST")
 	router.HandleFunc("/list", listFile).Methods("GET")
 	router.HandleFunc("/remove/{fileName}", removeFile).Methods("DELETE")
-	//router.HandleFunc("/update/{name}", updatePerson).Methods("PUT")
+	router.HandleFunc("/update/{fileName}", updateFile).Methods("PUT")
 	//http.HandleFunc("/add", addFile)
 
 	http.ListenAndServe(":9000", router)
