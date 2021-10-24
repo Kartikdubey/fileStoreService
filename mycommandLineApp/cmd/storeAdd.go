@@ -13,7 +13,7 @@ import (
 
 //For storing rsponse to client
 
-type response struct {
+type Response struct {
 	Message string
 }
 
@@ -26,10 +26,10 @@ var storeAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("storeAdd called")
 		for _, args := range args {
-			fmt.Println("-AA", args)
+			//fmt.Println("-AA", args)
 			content, err := ioutil.ReadFile(args)
 
-			fmt.Println("Successfully Opened file passing it to server", string(content), content)
+			//fmt.Println("Successfully Opened file passing it to server", string(content), content)
 
 			req, err := http.NewRequest("POST", "http://localhost:9000/add", bytes.NewBuffer(content))
 
@@ -45,7 +45,7 @@ var storeAddCmd = &cobra.Command{
 			}
 			defer resp.Body.Close()
 			data, _ := ioutil.ReadAll(resp.Body)
-			var a response
+			var a Response
 			json.Unmarshal(data, &a)
 			fmt.Println(a)
 		}
@@ -55,13 +55,4 @@ var storeAddCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(storeAddCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// storeAddCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// storeAddCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

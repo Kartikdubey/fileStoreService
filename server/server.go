@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -23,6 +24,11 @@ func init() {
 //For sending rsponse to client
 type response struct {
 	Message string
+}
+
+//For sending list ofcommand
+type lsFile struct {
+	File []string
 }
 
 //To add file to the store
@@ -55,7 +61,7 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Println("---", string(fileBytes))
+		//fmt.Println("---", string(fileBytes))
 		// write this byte array to  file
 		ioutil.WriteFile(fileName, fileBytes, 0644)
 
@@ -66,16 +72,17 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 
 //To list file present on the store
 func listFile(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(dir)
+	//fmt.Println(dir)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	var listF lsFile
 	for _, file := range files {
 		fmt.Println(file.Name())
+		listF.File = append(listF.File, file.Name())
 	}
-
+	json.NewEncoder(w).Encode(listF)
 }
 
 //To delete file
@@ -87,9 +94,11 @@ func removeFile(w http.ResponseWriter, r *http.Request) {
 	err := os.Remove(fileP)
 	if err != nil {
 		fmt.Println(err)
-
 	}
-	fmt.Println("File Successfully deleted")
+	mesg := fileName + " File deleted successfully "
+	resp := &response{Message: mesg}
+	json.NewEncoder(w).Encode(resp)
+	fmt.Println(mesg)
 
 }
 
@@ -111,9 +120,52 @@ func updateFile(w http.ResponseWriter, r *http.Request) {
 	// write this byte array to  file
 
 	ioutil.WriteFile(fileName, fileBytes, 0644)
-	fmt.Fprintf(w, "Successfully Updated File\n")
+	mesg := params["fileName"] + " File updated successfully "
+	resp := &response{Message: mesg}
+	json.NewEncoder(w).Encode(resp)
+	fmt.Println(mesg)
+
 }
 
+//Count Words in all the file
+func countWords(w http.ResponseWriter, r *http.Request) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	count := 0
+	for _, file := range files {
+
+		fileHandle, err := os.Open(dir + "\\" + file.Name())
+
+		// check if file-handle was initiated correctly
+		if err != nil {
+			panic(err)
+		}
+
+		// to close file-handle upon return
+		defer fileHandle.Close()
+
+		// initiate scanner from file handle
+		fileScanner := bufio.NewScanner(fileHandle)
+
+		// tell the scanner to split by words
+		fileScanner.Split(bufio.ScanWords)
+
+		// for looping through results
+		for fileScanner.Scan() {
+			//fmt.Printf("word: '%s' - position: '%d'\n", fileScanner.Text(), count)
+			count++
+		}
+
+		// check if there was an error while reading words from file
+		if err := fileScanner.Err(); err != nil {
+			panic(err)
+		}
+	}
+	json.NewEncoder(w).Encode(count)
+	fmt.Println(count)
+}
 func main() {
 	fmt.Println("Server Started")
 
@@ -123,6 +175,7 @@ func main() {
 	router.HandleFunc("/list", listFile).Methods("GET")
 	router.HandleFunc("/remove/{fileName}", removeFile).Methods("DELETE")
 	router.HandleFunc("/update/{fileName}", updateFile).Methods("PUT")
+	router.HandleFunc("/count", countWords).Methods("GET")
 	//http.HandleFunc("/add", addFile)
 
 	http.ListenAndServe(":9000", router)

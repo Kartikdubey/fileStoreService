@@ -1,10 +1,8 @@
-package cmd
+package main
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -68,7 +66,7 @@ func main() {
 	fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
 	*/
-	content, err := ioutil.ReadFile("abc.txt")
+	/*content, err := ioutil.ReadFile("abc.txt")
 
 	fmt.Println("Successfully Opened file passing it to server")
 
@@ -88,5 +86,13 @@ func main() {
 
 	fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
+	*/
+	response, err := http.Get("http://localhost:9000/count")
+	if err != nil {
+		fmt.Println("HTTP req failed with error", err)
+	} else {
+		data, _ := ioutil.ReadAll(response.Body)
+		fmt.Println(string(data))
+	}
 
 }
