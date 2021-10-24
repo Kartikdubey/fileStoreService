@@ -134,6 +134,7 @@ func countWords(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	count := 0
+
 	for _, file := range files {
 
 		fileHandle, err := os.Open(dir + "\\" + file.Name())
@@ -155,6 +156,7 @@ func countWords(w http.ResponseWriter, r *http.Request) {
 		// for looping through results
 		for fileScanner.Scan() {
 			//fmt.Printf("word: '%s' - position: '%d'\n", fileScanner.Text(), count)
+
 			count++
 		}
 
@@ -165,6 +167,50 @@ func countWords(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(count)
 	fmt.Println(count)
+
+}
+
+//Count Frequency of all Words in all the file
+func freqWords(w http.ResponseWriter, r *http.Request) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	count := 0
+	wordMap := make(map[string]int)
+	for _, file := range files {
+
+		fileHandle, err := os.Open(dir + "\\" + file.Name())
+
+		// check if file-handle was initiated correctly
+		if err != nil {
+			panic(err)
+		}
+
+		// to close file-handle upon return
+		defer fileHandle.Close()
+
+		// initiate scanner from file handle
+		fileScanner := bufio.NewScanner(fileHandle)
+
+		// tell the scanner to split by words
+		fileScanner.Split(bufio.ScanWords)
+
+		// for looping through results
+		for fileScanner.Scan() {
+			//fmt.Printf("word: '%s' - position: '%d'\n", fileScanner.Text(), count)
+			wordMap[fileScanner.Text()] += 1
+			count++
+		}
+
+		// check if there was an error while reading words from file
+		if err := fileScanner.Err(); err != nil {
+			panic(err)
+		}
+	}
+	json.NewEncoder(w).Encode(wordMap)
+	fmt.Println(count)
+	fmt.Println("Word Map---", wordMap)
 }
 func main() {
 	fmt.Println("Server Started")
@@ -176,8 +222,7 @@ func main() {
 	router.HandleFunc("/remove/{fileName}", removeFile).Methods("DELETE")
 	router.HandleFunc("/update/{fileName}", updateFile).Methods("PUT")
 	router.HandleFunc("/count", countWords).Methods("GET")
-	//http.HandleFunc("/add", addFile)
-
+	router.HandleFunc("/freq", freqWords).Methods("GET")
 	http.ListenAndServe(":9000", router)
 
 }
