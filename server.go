@@ -3,13 +3,19 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 )
 
-//var serverdir
+var dir string
+
+func init() {
+	dir, _ = os.Getwd()
+	dir = dir + "\\store"
+}
 
 //To add file to the store
 func addFile(w http.ResponseWriter, r *http.Request) {
@@ -37,9 +43,11 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 
 	// Create a temporary file within our temp-images directory that follows
 	// a particular naming pattern*/
-	dir, _ := os.Getwd()
+
+	fileName := r.Header.Get("fileName")
+
 	fmt.Println(dir)
-	tempFile, err := ioutil.TempFile(dir, "upload-*.txt")
+	tempFile, err := ioutil.TempFile(dir, fileName)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -59,6 +67,20 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 
 //To list file present on the store
 func listFile(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(dir)
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Name())
+	}
+
+}
+
+//To delete file
+func removeFile(w http.ResponseWriter, r *http.Request) {
 
 }
 func main() {
@@ -68,15 +90,10 @@ func main() {
 
 	router.HandleFunc("/add", addFile).Methods("POST")
 	router.HandleFunc("/list", listFile).Methods("GET")
-	//router.HandleFunc("/delete/{name}", deletePerson).Methods("DELETE")
+	router.HandleFunc("/remove/{name}", removeFile).Methods("DELETE")
 	//router.HandleFunc("/update/{name}", updatePerson).Methods("PUT")
 	//http.HandleFunc("/add", addFile)
 
-	err := http.ListenAndServe(":9000", router)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("server stareted")
-	}
+	http.ListenAndServe(":9000", router)
 
 }
