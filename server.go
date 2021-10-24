@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
 )
 
 //var serverdir
@@ -16,7 +18,7 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 	// params := mux.Vars(r)
 	//fileName:=params["fileName"]
 
-	// maximum file upload of 10 MB files.
+	/*maximum file upload of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
 	// FormFile returns the first file for the given key `myFile`
 	// it also returns the FileHeader so we can get the Filename,
@@ -34,25 +36,25 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("MIME Header: %+v\n", handler.Header)
 
 	// Create a temporary file within our temp-images directory that follows
-	// a particular naming pattern
+	// a particular naming pattern*/
 	dir, _ := os.Getwd()
 	fmt.Println(dir)
-	tempFile, err := ioutil.TempFile(dir, "upload-*.pdf")
+	tempFile, err := ioutil.TempFile(dir, "upload-*.txt")
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer tempFile.Close()
-
 	// read all of the contents of our uploaded file into a
 	// byte array
-	fileBytes, err := ioutil.ReadAll(file)
+	fileBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		panic(err.Error())
 	}
 	// write this byte array to our temporary file
 	tempFile.Write(fileBytes)
 	// return that we have successfully uploaded our file!
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
+
 }
 
 //To list file present on the store
@@ -61,12 +63,20 @@ func listFile(w http.ResponseWriter, r *http.Request) {
 }
 func main() {
 	fmt.Println("Main Started")
-	////router := mux.NewRouter()
-	//router.HandleFunc("/add", addFile).Methods("POST")
-	//router.HandleFunc("/list", listFile).Methods("GET")
+
+	router := mux.NewRouter()
+
+	router.HandleFunc("/add", addFile).Methods("POST")
+	router.HandleFunc("/list", listFile).Methods("GET")
 	//router.HandleFunc("/delete/{name}", deletePerson).Methods("DELETE")
 	//router.HandleFunc("/update/{name}", updatePerson).Methods("PUT")
-	http.HandleFunc("/add", addFile)
-	http.ListenAndServe(":7000", nil)
+	//http.HandleFunc("/add", addFile)
+
+	err := http.ListenAndServe(":9000", router)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("server stareted")
+	}
 
 }
