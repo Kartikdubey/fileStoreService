@@ -81,6 +81,16 @@ func listFile(w http.ResponseWriter, r *http.Request) {
 
 //To delete file
 func removeFile(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	fileName := params["fileName"]
+	fileP := dir + "\\" + fileName
+	//fmt.Println("-------", fileP)
+	err := os.Remove(fileP)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	fmt.Println("File  successfully deleted")
 
 }
 func main() {
@@ -90,7 +100,7 @@ func main() {
 
 	router.HandleFunc("/add", addFile).Methods("POST")
 	router.HandleFunc("/list", listFile).Methods("GET")
-	router.HandleFunc("/remove/{name}", removeFile).Methods("DELETE")
+	router.HandleFunc("/remove/{fileName}", removeFile).Methods("DELETE")
 	//router.HandleFunc("/update/{name}", updatePerson).Methods("PUT")
 	//http.HandleFunc("/add", addFile)
 
