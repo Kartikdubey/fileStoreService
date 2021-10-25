@@ -4,11 +4,26 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 func main() {
 
 	fmt.Println("Client Started")
+	argsWithoutProg := os.Args[1:]
+	//
+	checkOne := argsWithoutProg[1]
+	if checkOne == "wc" {
+		fmt.Println("here")
+		url := "http://localhost:9000/" + "count"
+		response, err := http.Get(url)
+		if err != nil {
+			fmt.Println("HTTP req failed with error", err)
+		} else {
+			data, _ := ioutil.ReadAll(response.Body)
+			fmt.Println(string(data))
+		}
+	}
 	/*/var person Person
 	err = json.Unmarshal(content, &person)
 	/* json.Unmarshal Error
@@ -87,12 +102,5 @@ func main() {
 	fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
 	*/
-	response, err := http.Get("http://localhost:9000/count")
-	if err != nil {
-		fmt.Println("HTTP req failed with error", err)
-	} else {
-		data, _ := ioutil.ReadAll(response.Body)
-		fmt.Println(string(data))
-	}
 
 }
