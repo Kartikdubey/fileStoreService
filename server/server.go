@@ -33,7 +33,7 @@ type lsFile struct {
 
 //To add file to the store
 
-func addFile(w http.ResponseWriter, r *http.Request) {
+func AddFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Add file to store endpoint Hit")
 
 	fileName := r.Header.Get("fileName")
@@ -71,7 +71,7 @@ func addFile(w http.ResponseWriter, r *http.Request) {
 }
 
 //To list file present on the store
-func listFile(w http.ResponseWriter, r *http.Request) {
+func ListFile(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(dir)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -86,7 +86,7 @@ func listFile(w http.ResponseWriter, r *http.Request) {
 }
 
 //To delete file
-func removeFile(w http.ResponseWriter, r *http.Request) {
+func RemoveFile(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fileName := params["fileName"]
 	fileP := dir + "\\" + fileName
@@ -103,7 +103,7 @@ func removeFile(w http.ResponseWriter, r *http.Request) {
 }
 
 //Update file
-func updateFile(w http.ResponseWriter, r *http.Request) {
+func UpdateFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Update hit")
 	params := mux.Vars(r)
 	fileName := params["fileName"]
@@ -128,7 +128,7 @@ func updateFile(w http.ResponseWriter, r *http.Request) {
 }
 
 //Count Words in all the file
-func countWords(w http.ResponseWriter, r *http.Request) {
+func CountWords(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
@@ -171,7 +171,7 @@ func countWords(w http.ResponseWriter, r *http.Request) {
 }
 
 //Count Frequency of all Words in all the file
-func freqWords(w http.ResponseWriter, r *http.Request) {
+func FreqWords(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
@@ -217,12 +217,12 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/add", addFile).Methods("POST")
-	router.HandleFunc("/list", listFile).Methods("GET")
-	router.HandleFunc("/remove/{fileName}", removeFile).Methods("DELETE")
-	router.HandleFunc("/update/{fileName}", updateFile).Methods("PUT")
-	router.HandleFunc("/count", countWords).Methods("GET")
-	router.HandleFunc("/freq", freqWords).Methods("GET")
+	router.HandleFunc("/add", AddFile).Methods("POST")
+	router.HandleFunc("/list", ListFile).Methods("GET")
+	router.HandleFunc("/remove/{fileName}", RemoveFile).Methods("DELETE")
+	router.HandleFunc("/update/{fileName}", UpdateFile).Methods("PUT")
+	router.HandleFunc("/count", CountWords).Methods("GET")
+	router.HandleFunc("/freq", FreqWords).Methods("GET")
 	http.ListenAndServe(":9000", router)
 
 }
