@@ -11,7 +11,7 @@ Setup the Path variables GOPATH and GOROOT
 
 git clone repo https://github.com/Kartikdubey/fileStoreService.git
 
-Execute go mod 
+Execute go mod tidy from both folders
 
 Start the server go run server/server.go
 
@@ -32,7 +32,11 @@ envPath/bin folder
    
    mycommandLineApp storeWc               (to get total word counts from all the files)
    
-   mycommandLineApp storefreqWords        (to get less or more frequent words)
+   mycommandLineApp storefreqWords        (to get  more frequent words)
+
+   mycommandLineApp storefreqWords -l     (to get  less frequent words)
+
+This option uses cobra library go get -u github.com/spf13/cobra/cobra
    
 Option two---
 

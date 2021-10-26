@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -8,8 +9,56 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var wordMap map[string]int
+
+//To get more frequent words
+func moreFrequent(word map[string]int) {
+	fmt.Println("more freq")
+	var a []string
+	max := 0
+	for _, v := range word {
+		if max < v {
+			max = v
+		}
+	}
+	fmt.Println(max)
+	for k, v := range word {
+		if v == max {
+			a = append(a, k)
+		}
+	}
+	fmt.Println("more frequent words", a)
+
+}
+
+//To get less frequent words
+func lessFrequent(word map[string]int) {
+	fmt.Println("less freq")
+	var a []string
+	min := 0
+	for _, v := range word {
+		min = v
+		break
+	}
+	for _, v := range word {
+		if min > v {
+			min = v
+		}
+	}
+	fmt.Println(min)
+	for k, v := range word {
+		if v == min {
+			a = append(a, k)
+		}
+	}
+
+	fmt.Println("more frequent words", a)
+
+}
+
 // storefreqWordsCmd represents the storefreqWords command
 var storefreqWordsCmd = &cobra.Command{
+
 	Use:   "storefreqWords",
 	Short: "Command to print most or less frequentWords",
 	Long:  `Part of filestoreService application`,
@@ -20,21 +69,21 @@ var storefreqWordsCmd = &cobra.Command{
 			fmt.Println("HTTP req failed with error", err)
 		} else {
 			data, _ := ioutil.ReadAll(response.Body)
-			fmt.Println("Freq of words in all files", string(data))
+
+			json.Unmarshal(data, &wordMap)
+			fmt.Println("Freq of all words in all files", wordMap)
+		}
+		fstatus, _ := cmd.Flags().GetBool("least")
+		if fstatus { // if status is true, call least
+			lessFrequent(wordMap)
+		} else {
+			moreFrequent(wordMap)
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(storefreqWordsCmd)
+	storefreqWordsCmd.Flags().BoolP("least", "l", false, "Least Frequency Words")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// storefreqWordsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// storefreqWordsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

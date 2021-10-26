@@ -6,7 +6,7 @@ ENV GO111MODULE=on \
     GOOS=linux \
     GOARCH=amd64
 	
-ENV DataBaseUrl="127.0.0.1:3306"
+ENV ServerUrl="localhost:9000"
 
 # Move to working directory /build
 WORKDIR /build
